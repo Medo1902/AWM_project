@@ -1,3 +1,12 @@
 from django.db import models
 
-# Create your models here.
+
+class Earthquakes(models.Model):
+    datetime = models.CharField()
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    depth = models.IntegerField()
+    magnitude = models.FloatField()
+
+    def __str__(self):
+        return self.magnitude

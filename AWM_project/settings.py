@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'AWM_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
+        'NAME': 'gis',
         'USER': 'docer',
         'PASSWORD': 'docker',
         'HOST': '127.0.0.1',
