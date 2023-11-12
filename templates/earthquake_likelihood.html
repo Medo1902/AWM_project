@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+<div id="map" style="height: 90vh; width: 100%;"></div>
+{{  earthquakes|json_script:"earthquakes_json" }}
+
+
+    <script>
+    var map = L.map('map').setView([36.21894013954268, -46.244862771102014], 2);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+    let earthquakes = JSON.parse(document.getElementById('earthquakes_json').textContent);
+
+// Create a marker cluster group
+var markers = L.markerClusterGroup();
+earthquakes.forEach(earthquake => {
+    var marker = L.circleMarker([earthquake.latitude, earthquake.longitude], {
+        radius: 8,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    });
+    markers.addLayer(marker);
+});
+map.addLayer(markers);
+
+// Function to count earthquakes within 400km
+function countEarthquakesInRadius(lat, lng) {
+    const radius = 400000; // 400 km in meters
+    let count = 0;
+    earthquakes.forEach(earthquake => {
+        if (map.distance([lat, lng], [earthquake.latitude, earthquake.longitude]) <= radius) {
+            count++;
+        }
+    });
+    return count;
+}
+
+// Add click event to the map
+map.on('click', function(e) {
+    const numEarthquakes = countEarthquakesInRadius(e.latlng.lat, e.latlng.lng);
+    if (numEarthquakes == 0) {
+        L.popup()
+         .setLatLng(e.latlng)
+         .setContent("Likelihood of earthquake: None<br>Number of earthquakes within 400km: " + numEarthquakes)
+         .openOn(map);
+    }
+    else if (numEarthquakes > 20) {
+        L.popup()
+         .setLatLng(e.latlng)
+         .setContent("Likelihood of earthquake: High<br>Number of earthquakes within 400km: " + numEarthquakes)
+         .openOn(map);
+    }
+    else if (numEarthquakes < 20) {
+        L.popup()
+         .setLatLng(e.latlng)
+         .setContent("Likelihood of earthquake: Medium<br>Number of earthquakes within 400km: " + numEarthquakes)
+         .openOn(map);
+    }
+});
+
+
+
+
+
+</script>
+{% endblock %}

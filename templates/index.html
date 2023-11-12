@@ -2,14 +2,52 @@
 
 {% block content %}
 
-<div id="map" style="height: 600px; width: 600px;"></div>
 
-<script>
-    var map = L.map('map').setView([51.505, -0.09], 13);
+
+<div id="map" style="height: 90vh; width: 100%;"></div>
+{{  earthquakes|json_script:"earthquakes_json" }}
+
+
+    <script>
+    var map = L.map('map').setView([36.21894013954268, -46.244862771102014], 2);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
+
+    let earthquakes = JSON.parse(document.getElementById('earthquakes_json').textContent);
+
+// Create a marker cluster group
+var markers = L.markerClusterGroup();
+
+// Display circle marker for each earthquake and add them to the cluster group
+earthquakes.forEach(earthquake => {
+    var marker = L.circleMarker([earthquake.latitude, earthquake.longitude], {
+        radius: 8,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    });
+
+    // Bind a popup to the marker
+    marker.bindPopup(
+        `<b>Date:</b> ${earthquake.date}<br>` +
+        `<b>Time:</b> ${earthquake.time}<br>` +
+        `<b>Magnitude:</b> ${earthquake.magnitude}<br>` +
+        `<b>Depth:</b> ${earthquake.depth} km`
+    );
+
+    markers.addLayer(marker); // Add each marker to the marker cluster group
+});
+
+// Add the marker cluster group to the map
+map.addLayer(markers);
+
+
+
+
 
 </script>
 {% endblock %}
